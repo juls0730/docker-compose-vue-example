@@ -1,0 +1,37 @@
+name: docker-compose-example
+services:
+  web:
+    build: .
+    volumes:
+      - ./:/app
+    depends_on:
+      - api
+
+  api:
+    build: ./server
+    volumes:
+      - ./server:/app
+    depends_on:
+      - keydb
+
+  keydb:
+    image: eqalpha/keydb:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - keydb:/data
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - web
+      - api
+
+volumes:
+  keydb:
+    driver: local
